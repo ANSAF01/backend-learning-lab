@@ -1,16 +1,18 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors')
+const multer = require('multer');
+const upload = upload = multer({ dest: '/uploads' });
 const userRoutes = require('./routes/userRoutes');
 const app = express()
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()) //Middleware to Parse Json body
-app.use(express.static(path.join(__dirname,'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(cors({
-    origin : 'https://myfrontend.com',
-    method : ['GET','POST','PUT','DELETE'] ,
-    credentials : true
+    origin: 'https://myfrontend.com',
+    method: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
 }))
 //loggerMiddleware
 const loggerMiddleware = (req, res, next) => {
@@ -19,6 +21,10 @@ const loggerMiddleware = (req, res, next) => {
 }
 app.use(loggerMiddleware)
 
+app.post('/api/upload', upload.single('avatar'), (req, res) => {
+    res.json({ file: req.file })
+})
+
 app.get('api/products/:id', (req, res) => {
     const { id } = req.params;
     const { category, page } = req.query;
@@ -26,7 +32,7 @@ app.get('api/products/:id', (req, res) => {
     console.log(id)
 })
 
-app.use('/api/users',userRoutes)
+app.use('/api/users', userRoutes)
 
 app.get('/', (req, res) => {
     res.json("You are in Home Page")
