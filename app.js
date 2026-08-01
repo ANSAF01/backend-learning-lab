@@ -2,16 +2,30 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors')
 const multer = require('multer');
-const upload = upload = multer({ dest: '/uploads' });
+const upload = upload = multer({ dest: 'uploads/' });
 const userRoutes = require('./routes/userRoutes');
 const app = express()
 const PORT = process.env.PORT || 3000;
+const jwt = require('jsonwebtoken');
+
+//Auth Middleware
+const authenticateToken = (req,res,next)=>{
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if(!token) return res.sendStatus(401);
+
+    jwt.verify(token,process.env.JWT_SECRET, (err,user)=>{
+        if(err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    })
+}
 
 app.use(express.json()) //Middleware to Parse Json body
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(cors({
     origin: 'https://myfrontend.com',
-    method: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
 //loggerMiddleware
@@ -25,11 +39,10 @@ app.post('/api/upload', upload.single('avatar'), (req, res) => {
     res.json({ file: req.file })
 })
 
-app.get('api/products/:id', (req, res) => {
+app.get('/api/products/:id', (req, res) => {
     const { id } = req.params;
     const { category, page } = req.query;
     res.send({ id, category, page })
-    console.log(id)
 })
 
 app.use('/api/users', userRoutes)
