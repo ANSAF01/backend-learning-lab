@@ -7,6 +7,12 @@ const userRoutes = require('./routes/userRoutes');
 const app = express()
 const PORT = process.env.PORT || 3000;
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-Limit');
+app.use(helmet());
+
+const limiter = rateLimit({windowMs: 15* 60* 1000,max: 100});
+app.use(limiter);
 
 //Auth Middleware
 const authenticateToken = (req,res,next)=>{
@@ -50,6 +56,7 @@ app.use('/api/users', userRoutes)
 app.get('/', (req, res) => {
     res.json("You are in Home Page")
 })
+
 
 //Global Error Handler (Must be used After all routes)
 app.use((err, req, res, next) => {
