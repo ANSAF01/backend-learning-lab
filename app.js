@@ -1,12 +1,17 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors')
 const userRoutes = require('./routes/userRoutes');
 const app = express()
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()) //Middleware to Parse Json body
 app.use(express.static(path.join(__dirname,'public')))
-
+app.use(cors({
+    origin : 'https://myfrontend.com',
+    method : ['GET','POST','PUT','DELETE'] ,
+    credentials : true
+}))
 //loggerMiddleware
 const loggerMiddleware = (req, res, next) => {
     console.log(` ${[new Date().toISOString()]} ${req.method} ${req.url}`)
@@ -14,12 +19,14 @@ const loggerMiddleware = (req, res, next) => {
 }
 app.use(loggerMiddleware)
 
-app.get('/students/:id', (req, res) => {
+app.get('api/products/:id', (req, res) => {
     const { id } = req.params;
     const { category, page } = req.query;
     res.send({ id, category, page })
     console.log(id)
 })
+
+app.use('/api/users',userRoutes)
 
 app.get('/', (req, res) => {
     res.json("You are in Home Page")
