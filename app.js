@@ -1,9 +1,11 @@
 const express = require('express');
+const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const app = express()
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()) //Middleware to Parse Json body
+app.use(express.static(path.join(__dirname,'public')))
 
 //loggerMiddleware
 const loggerMiddleware = (req, res, next) => {
